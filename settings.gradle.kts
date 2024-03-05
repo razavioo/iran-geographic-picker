@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "IranProvincePicker"
+rootProject.name = "IranGeographicPicker"
 include(":app")
 include(":picker")

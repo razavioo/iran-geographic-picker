@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "dev.emad.province.picker"
+    namespace = "dev.emad.geographic.picker"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "dev.emad.province.picker"
+        applicationId = "dev.emad.geographic.picker"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
