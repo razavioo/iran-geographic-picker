@@ -2,10 +2,9 @@ package dev.emad.geographic.picker
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
@@ -21,8 +20,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 @Composable
 fun MapView(
@@ -30,12 +27,10 @@ fun MapView(
     geographicEntities: List<GeographicEntity>,
     onGeographicEntitySelected: (GeographicEntity) -> Unit,
 ) {
-    val context = LocalContext.current
     val selectedGeographicEntity = remember { mutableStateOf<GeographicEntity?>(null) }
     Box(modifier = modifier) {
         geographicEntities.forEach { entity ->
             GeographicEntityImage(
-                context = context,
                 geographicEntity = entity,
                 isSelected = entity == selectedGeographicEntity.value,
                 onSelect = {
@@ -49,30 +44,39 @@ fun MapView(
 
 @Composable
 fun GeographicEntityImage(
-    context: Context,
     geographicEntity: GeographicEntity,
     isSelected: Boolean,
     onSelect: (GeographicEntity) -> Unit,
 ) {
+    val context = LocalContext.current
     val drawableRes =
         if (isSelected) geographicEntity.selectedDrawableId else geographicEntity.drawableId
-    val bitmap = getBitmapFromVectorDrawable(context, drawableRes)
 
-    bitmap?.let {
+    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+    LaunchedEffect(drawableRes) {
+        bitmap = getBitmapFromVectorDrawable(context, drawableRes)
+    }
+
+    bitmap?.let { bmp ->
         Image(
-            bitmap = it.asImageBitmap(),
+            bitmap = bmp.asImageBitmap(),
             contentDescription = geographicEntity.name,
             modifier = Modifier
                 .offset(x = geographicEntity.x.dp, y = geographicEntity.y.dp)
                 .pointerInput(Unit) {
-                    detectTapGestures { offset ->
-                        val x = (offset.x / size.width * it.width).toInt()
-                        val y = (offset.y / size.height * it.height).toInt()
+                    awaitEachGesture {
+                        val event = awaitPointerEvent()
+                        val touchPosition = event.changes.first().position
 
-                        if (x in 0 until it.width && y in 0 until it.height) {
-                            val pixel = it.getPixel(x, y)
+                        val x = (touchPosition.x / size.width * bmp.width).toInt()
+                        val y = (touchPosition.y / size.height * bmp.height).toInt()
+
+                        if (x in 0 until bmp.width && y in 0 until bmp.height) {
+                            val pixel = bmp.getPixel(x, y)
                             val alpha = pixel ushr 24 and 0xff
                             if (alpha != 0) {
+                                event.changes.forEach { it.consume() }
                                 onSelect(geographicEntity)
                             }
                         }
@@ -97,7 +101,11 @@ fun IranGeographicMapView(
 fun getBitmapFromVectorDrawable(context: Context, drawableId: Int): Bitmap? {
     val drawable = ContextCompat.getDrawable(context, drawableId)
     drawable?.let {
-        val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(
+            drawable.intrinsicWidth,
+            drawable.intrinsicHeight,
+            Bitmap.Config.ARGB_8888
+        )
         val canvas = Canvas(bitmap)
         drawable.setBounds(0, 0, canvas.width, canvas.height)
         drawable.draw(canvas)
