@@ -116,13 +116,11 @@ fun Modifier.transparentTouchIntercept(bitmap: Bitmap, onTouch: () -> Unit): Mod
                         val x = (position.x / bounds.width * bitmap.width).toInt()
                         val y = (position.y / bounds.height * bitmap.height).toInt()
 
-                        if (x in 0 until bitmap.width && y in 0 until bitmap.height) {
-                            val pixel = bitmap.getPixel(x, y)
-                            val alpha = pixel ushr 24 and 0xff
-                            if (alpha == 0) {
-                                change.consume()
-                                onTouch()
-                            }
+                        val pixel = bitmap.getPixel(x, y)
+                        val alpha = pixel ushr 24 and 0xff
+                        if (alpha == 0) {
+                            change.consume()
+                            onTouch()
                         }
                     }
                 }
