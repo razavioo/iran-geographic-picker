@@ -10,9 +10,9 @@ An interactive Android app built with Jetpack Compose, enabling users to explore
 - [x] Compact and visually appealing UI/UX.
 - [x] Extendable architecture for additional features.
 
-## Screenshot
+## Screenshots
 
-![Iran Geographic Picker Screenshot](screenshot.png)
+[screenshot.webm](https://github.com/razavioo/iran-geographic-picker/assets/29175816/3a9b042b-178d-412e-92fb-df1e4b5c66fc)
 
 ## Future Enhancements
 
