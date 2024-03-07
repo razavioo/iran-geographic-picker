@@ -2,7 +2,7 @@
 
 An interactive Android app built with Jetpack Compose, enabling users to explore and select geographic entities within Iran, such as provinces, cities, and landmarks. Designed to blend educational value with engaging user experience, this app opens avenues for learning about Iran's rich geography and cultural heritage.
 
-![Iran Geographic Picker](image.webp)
+<img src="image.webp" width="400">
 
 ## Features
 
